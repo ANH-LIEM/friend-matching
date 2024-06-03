@@ -23,4 +23,9 @@ public class FavoriteController {
     public ResponseEntity<List<Favorite>> addFavorite(@RequestParam Long userId, @RequestParam Long favoriteId) {
         return ResponseEntity.ok(favoriteService.addFavorite(userId, favoriteId));
     }
+
+    @GetMapping
+    public ResponseEntity<List<Favorite>> getAllFavorites() {
+        return ResponseEntity.ok(favoriteService.findAll());
+    }
 }
