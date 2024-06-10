@@ -7,11 +7,12 @@ import lombok.*;
 @NoArgsConstructor
 @ToString
 @Builder
-@Table(name ="favorrites")
+@Table(name ="favorites")
 @Entity
 public class Favorite {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
     private String name;
+    private String url;
 }

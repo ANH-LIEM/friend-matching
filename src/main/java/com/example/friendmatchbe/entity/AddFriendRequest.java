@@ -1,4 +1,5 @@
 package com.example.friendmatchbe.entity;
+
 import jakarta.persistence.*;
 import lombok.*;
 
@@ -7,13 +8,12 @@ import lombok.*;
 @NoArgsConstructor
 @ToString
 @Builder
-@Table(name ="users")
+@Table(name ="add_friend_request")
 @Entity
-public class User {
+public class AddFriendRequest {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
-    private String name;
-    private int age;
-
+    private Long firstUserId;
+    private Long secondUserId;
 }
