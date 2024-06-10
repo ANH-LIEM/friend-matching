@@ -1,6 +1,7 @@
 package com.example.friendmatchbe.controller;
 
 import com.example.friendmatchbe.entity.AddFriendRequest;
+import com.example.friendmatchbe.entity.RecommendResponse;
 import com.example.friendmatchbe.entity.User;
 import com.example.friendmatchbe.entity.UserUser;
 import com.example.friendmatchbe.service.UserService;
@@ -46,8 +47,13 @@ public class UserController {
     }
 
     @GetMapping("/acceptFriendRequest")
-    public ResponseEntity<UserUser> acceptFriendRequest(AddFriendRequest addFriendRequest){
-        return ResponseEntity.ok(userService.acceptRequest(addFriendRequest));
+    public ResponseEntity<UserUser> acceptFriendRequest(@RequestParam Long addFriendRequestId){
+        return ResponseEntity.ok(userService.acceptRequest(addFriendRequestId));
+    }
+
+    @GetMapping("/recommendFriends")
+    public ResponseEntity<List<RecommendResponse>> recommendFriends(@RequestParam Long userId) {
+        return ResponseEntity.ok(userService.recommendFriends(userId));
     }
 
 }

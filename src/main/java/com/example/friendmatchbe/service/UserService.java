@@ -1,9 +1,6 @@
 package com.example.friendmatchbe.service;
 
-import com.example.friendmatchbe.entity.AddFriendRequest;
-import com.example.friendmatchbe.entity.User;
-import com.example.friendmatchbe.entity.UserFavorite;
-import com.example.friendmatchbe.entity.UserUser;
+import com.example.friendmatchbe.entity.*;
 import com.example.friendmatchbe.repository.AddFriendRequestRepository;
 import com.example.friendmatchbe.repository.UserFavoriteRepository;
 import com.example.friendmatchbe.repository.UserRepository;
@@ -12,9 +9,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 //import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Optional;
+import java.util.*;
 
 @Service
 public class UserService {
@@ -45,6 +40,38 @@ public class UserService {
         return users;
     }
 
+    public List<RecommendResponse> recommendFriends(Long userId) {
+        List<RecommendResponse> recommendResponses = new ArrayList<>();
+        Long countFavorite = (long) userFavoriteRepository.findAllByUserId(userId).size();
+        User user = userRepository.findById(userId).orElse(null);
+        List<User> friends = findAllFriends(userId);
+        List<User> recommendFriends = new ArrayList<>();
+        List<UserFavorite> userFavorites = userFavoriteRepository.findAllByUserId(userId);
+        Map<Long, RecommendResponse> recommendResponseMap = new HashMap<>();
+
+        for (UserFavorite userFavorite : userFavorites) {
+            List<User> friendsOfFavorite = findAllByFavorite(userFavorite.getFavoriteId());
+            for (User friendOfFavorite : friendsOfFavorite) {
+                if (!friends.contains(friendOfFavorite) && !friendOfFavorite.equals(user)) {
+                    if (recommendResponseMap.containsKey(friendOfFavorite.getId())) {
+                        RecommendResponse existingResponse = recommendResponseMap.get(friendOfFavorite.getId());
+                        existingResponse.setScore(existingResponse.getScore() + 1);
+                    } else {
+                        RecommendResponse newResponse = new RecommendResponse(friendOfFavorite.getId(), friendOfFavorite.getName(), friendOfFavorite.getAge(), friendOfFavorite.getUrl(), 1);
+                        recommendResponseMap.put(friendOfFavorite.getId(), newResponse);
+                    }
+                }
+            }
+        }
+
+        recommendResponses.addAll(recommendResponseMap.values());
+
+        for (RecommendResponse recommendResponse : recommendResponses) {
+            recommendResponse.setScore(100*recommendResponse.getScore() / countFavorite);
+        }
+        return recommendResponses;
+    }
+
     public List<User> findAllFriends(Long userId){
         List<UserUser> listUserUser = userUserRepository.findByFirstUserId(userId);
         List<User> users = new ArrayList<>();
@@ -62,7 +89,13 @@ public class UserService {
         return addFriendRequestRepository.findBySecondUserId(userId);
     }
 
-    public UserUser acceptRequest(AddFriendRequest addFriendRequest){
+    public UserUser acceptRequest(Long addFriendRequestId){
+        AddFriendRequest addFriendRequest = addFriendRequestRepository.findById(addFriendRequestId).orElse(null);
+        assert addFriendRequest != null;
+        UserUser userUser = new UserUser();
+        userUser.setFirstUserId(addFriendRequest.getSecondUserId());
+        userUser.setSecondUserId(addFriendRequest.getFirstUserId());
+        userUserRepository.save(userUser);
         return userUserRepository.save(convertToUserUser(addFriendRequest));
     }
 

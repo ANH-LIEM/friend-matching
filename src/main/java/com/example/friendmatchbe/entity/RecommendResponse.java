@@ -1,4 +1,5 @@
 package com.example.friendmatchbe.entity;
+
 import jakarta.persistence.*;
 import lombok.*;
 
@@ -6,14 +7,19 @@ import lombok.*;
 @AllArgsConstructor
 @NoArgsConstructor
 @ToString
-@Builder
-@Table(name ="users")
-@Entity
-public class User {
+public class RecommendResponse {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
     private String name;
     private int age;
     private String url;
+    private double score;
+
+    public RecommendResponse(User friendOfFavorite) {
+        this.id = friendOfFavorite.getId();
+        this.name = friendOfFavorite.getName();
+        this.age = friendOfFavorite.getAge();
+        this.score = 1.0;
+    }
 }
