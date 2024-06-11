@@ -11,6 +11,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
+import java.util.Map;
 
 @RestController
 @RequestMapping("/user")
@@ -36,13 +37,17 @@ public class UserController {
         return ResponseEntity.ok(userService.findById(id).orElse(null));
     }
 
-    @GetMapping("/addFriendRequest")
-    public ResponseEntity<AddFriendRequest> addFriendRequest(@RequestBody AddFriendRequest addFriendRequest) {
-        return ResponseEntity.ok(userService.addFriendRequest(addFriendRequest));
+    @PostMapping("/addFriendRequest")
+    public ResponseEntity<Map<String,Boolean>> addFriendRequest(@RequestBody AddFriendRequest addFriendRequest) {
+        addFriendRequest.setFirstUserId(userRepository.findByUserIp(addFriendRequest.getFirstUserIp()).getId());
+        System.out.println(addFriendRequest.getFirstUserId() + " " + addFriendRequest.getSecondUserId());
+        userService.addFriendRequest(addFriendRequest);
+        return ResponseEntity.ok(Map.of("result", true));
     }
 
     @GetMapping("/findAllAddFriendRequest")
-    public ResponseEntity<List<AddFriendRequest>> findAllAddFriendRequest(@RequestParam Long userId) {
+    public ResponseEntity<List<RecommendResponse>> findAllAddFriendRequest(@RequestParam String userIp) {
+        Long userId = userRepository.findByUserIp(userIp).getId();
         return ResponseEntity.ok(userService.findAllAddFriendRequest(userId));
     }
 

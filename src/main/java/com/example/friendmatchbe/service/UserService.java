@@ -111,9 +111,60 @@ public class UserService {
         return addFriendRequestRepository.save(addFriendRequest);
     }
 
-    public List<AddFriendRequest> findAllAddFriendRequest(Long userId) {
-        return addFriendRequestRepository.findBySecondUserId(userId);
+    public List<RecommendResponse> findAllAddFriendRequest(Long userId) {
+        // Lấy danh sách các lời mời kết bạn mà người dùng đã nhận
+        List<AddFriendRequest> addFriendRequests = addFriendRequestRepository.findBySecondUserId(userId);
+        List<Long> userIds = new ArrayList<>();
+        for (AddFriendRequest addFriendRequest : addFriendRequests) {
+            userIds.add(addFriendRequest.getFirstUserId());
+        }
+
+        // Lấy danh sách sở thích của người dùng hiện tại
+        List<UserFavorite> userFavorites = userFavoriteRepository.findAllByUserId(userId);
+        List<Long> userFavoriteIds = userFavorites.stream().map(UserFavorite::getFavoriteId).toList();
+
+        // Khởi tạo danh sách để chứa kết quả
+        List<RecommendResponse> recommendResponses = new ArrayList<>();
+
+        for (Long friendUserId : userIds) {
+            // Lấy thông tin người dùng gửi lời mời kết bạn
+            User friendUser = userRepository.findById(friendUserId).orElse(null);
+            if (friendUser != null) {
+                // Lấy danh sách sở thích của người dùng gửi lời mời kết bạn
+                List<UserFavorite> friendFavorites = userFavoriteRepository.findAllByUserId(friendUserId);
+
+                List<Favorite> favoritesOverlap = new ArrayList<>();
+                List<Favorite> favoritesOther = new ArrayList<>();
+
+                // Phân loại sở thích chung và sở thích khác
+                for (UserFavorite friendFavorite : friendFavorites) {
+                    Favorite favorite = favoriteRepository.findById(friendFavorite.getFavoriteId()).orElse(null);
+                    if (favorite != null) {
+                        if (userFavoriteIds.contains(friendFavorite.getFavoriteId())) {
+                            favoritesOverlap.add(favorite);
+                        } else {
+                            favoritesOther.add(favorite);
+                        }
+                    }
+                }
+
+                // Tạo đối tượng RecommendResponse
+                RecommendResponse recommendResponse = new RecommendResponse(friendUser);
+                recommendResponse.setFavoritesOverlap(favoritesOverlap);
+                recommendResponse.setFavoritesOther(favoritesOther);
+                recommendResponses.add(recommendResponse);
+            }
+        }
+
+        // Tính toán điểm số cho từng RecommendResponse (nếu cần thiết)
+        long countFavorite = userFavorites.size();
+        for (RecommendResponse recommendResponse : recommendResponses) {
+            recommendResponse.setScore((int) (100 * recommendResponse.getFavoritesOverlap().size() / countFavorite));
+        }
+
+        return recommendResponses;
     }
+
 
     public UserUser acceptRequest(Long addFriendRequestId){
         AddFriendRequest addFriendRequest = addFriendRequestRepository.findById(addFriendRequestId).orElse(null);

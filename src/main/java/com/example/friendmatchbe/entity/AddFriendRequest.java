@@ -14,6 +14,7 @@ public class AddFriendRequest {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
+    private String firstUserIp;
     private Long firstUserId;
     private Long secondUserId;
 }
