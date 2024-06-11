@@ -54,7 +54,7 @@ public class UserController {
         return ResponseEntity.ok(userService.findAllAddFriendRequest(userId));
     }
 
-    @GetMapping("/acceptFriendRequest")
+    @PostMapping("/acceptFriendRequest")
     public ResponseEntity<Map<String,Boolean>> acceptFriendRequest(@RequestBody AddFriendRequest addFriendRequest){
         Long userId = userRepository.findByUserIp(addFriendRequest.getFirstUserIp()).getId();
         Long addFriendRequestId = addFriendRequestRepository.findByFirstUserIdAndSecondUserId(addFriendRequest.getSecondUserId(),userId).getId();
