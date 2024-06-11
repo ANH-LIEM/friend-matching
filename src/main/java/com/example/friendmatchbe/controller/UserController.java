@@ -30,9 +30,9 @@ public class UserController {
     }
 
     @GetMapping("/findFriends")
-    public ResponseEntity<List<User>> findAllFriends(@RequestParam String userIp) {
+    public ResponseEntity<List<RecommendResponse>> findAllFriends(@RequestParam String userIp) {
         Long userId = userRepository.findByUserIp(userIp).getId();
-        return ResponseEntity.ok(userService.findAllFriends(userId));
+        return ResponseEntity.ok(userService.findAllFriendsNew(userId));
     }
 
     @GetMapping("/{id}")
