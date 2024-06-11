@@ -3,6 +3,7 @@ package com.example.friendmatchbe.controller;
 import com.example.friendmatchbe.entity.AddMultiFavoriteDTO;
 import com.example.friendmatchbe.entity.Favorite;
 import com.example.friendmatchbe.entity.User;
+import com.example.friendmatchbe.repository.UserRepository;
 import com.example.friendmatchbe.service.FavoriteService;
 import com.example.friendmatchbe.service.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -20,6 +21,8 @@ public class FavoriteController {
 
     @Autowired
     private UserService userService;
+    @Autowired
+    private UserRepository userRepository;
 
     @PostMapping
     public ResponseEntity<Favorite> createFavorite(@RequestBody Favorite favorite) {
@@ -28,9 +31,11 @@ public class FavoriteController {
 
     @PostMapping("/add-multiple-favor")
     public ResponseEntity<Map<String,Boolean>> addMultipleFavorite(@RequestBody AddMultiFavoriteDTO addMultiFavoriteDTO) {
-        System.out.println(addMultiFavoriteDTO.toString());
         String userIp = addMultiFavoriteDTO.getUserIp();
-        userService.save(userIp);
+        User user = userRepository.findByUserIp(userIp);
+        if (user == null) {
+            userService.save(userIp);
+        }
         List<Long> favoriteIds = addMultiFavoriteDTO.getFavoriteIds();
         for (Long favoriteId : favoriteIds) {
             favoriteService.addFavorite(userIp, favoriteId);
