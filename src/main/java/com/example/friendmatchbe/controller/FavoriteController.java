@@ -10,6 +10,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
+import java.util.Map;
 
 @RestController
 @RequestMapping("/favorite")
@@ -26,14 +27,15 @@ public class FavoriteController {
     }
 
     @PostMapping("/add-multiple-favor")
-    public ResponseEntity<Boolean> addMultipleFavorite(@RequestBody AddMultiFavoriteDTO addMultiFavoriteDTO) {
+    public ResponseEntity<Map<String,Boolean>> addMultipleFavorite(@RequestBody AddMultiFavoriteDTO addMultiFavoriteDTO) {
+        System.out.println(addMultiFavoriteDTO.toString());
         String userIp = addMultiFavoriteDTO.getUserIp();
         userService.save(userIp);
         List<Long> favoriteIds = addMultiFavoriteDTO.getFavoriteIds();
         for (Long favoriteId : favoriteIds) {
             favoriteService.addFavorite(userIp, favoriteId);
         }
-        return ResponseEntity.ok(true);
+        return ResponseEntity.ok(Map.of("result", true));
     }
 
     @GetMapping
