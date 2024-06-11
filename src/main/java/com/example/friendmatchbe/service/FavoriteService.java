@@ -1,9 +1,11 @@
 package com.example.friendmatchbe.service;
 
 import com.example.friendmatchbe.entity.Favorite;
+import com.example.friendmatchbe.entity.User;
 import com.example.friendmatchbe.entity.UserFavorite;
 import com.example.friendmatchbe.repository.FavoriteRepository;
 import com.example.friendmatchbe.repository.UserFavoriteRepository;
+import com.example.friendmatchbe.repository.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -21,6 +23,8 @@ public class FavoriteService {
 
     @Autowired
     private UserFavoriteRepository userFavoriteRepository;
+    @Autowired
+    private UserRepository userRepository;
 
     public Favorite save(Favorite favorite) {
         return favoriteRepository.save(favorite);
@@ -35,7 +39,9 @@ public class FavoriteService {
         favoriteRepository.deleteById(id);
     }
 
-    public List<Favorite> addFavorite(Long userId, Long favoriteId) {
+    public void addFavorite(String userIp, Long favoriteId) {
+        User user = userRepository.findByUserIp(userIp);
+        Long userId = user.getId();
         Optional<UserFavorite> userFavorite = userFavoriteRepository.findAllByUserIdAndFavoriteId(userId, favoriteId);
         if (userFavorite.isEmpty()) {
             UserFavorite userFavoriteEntity = new UserFavorite();
@@ -43,11 +49,11 @@ public class FavoriteService {
             userFavoriteEntity.setFavoriteId(favoriteId);
             userFavoriteRepository.save(userFavoriteEntity);
         }
-        List<UserFavorite> userFavorites = userFavoriteRepository.findAllByUserId(userId);
-        List<Favorite> favorites = new ArrayList<>();
-        for (UserFavorite userFavoriteEntity : userFavorites) {
-            favorites.add(favoriteRepository.findById(userFavoriteEntity.getFavoriteId()).orElse(null));
-        }
-        return favorites;
     }
+
+//    public List<Favorite> addFavorite(String userIp, Long favoriteId) {
+//        User user = userRepository.findByUserIp(userIp);
+//
+//    }
+
 }

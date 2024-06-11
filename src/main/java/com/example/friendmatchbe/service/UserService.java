@@ -6,7 +6,6 @@ import com.example.friendmatchbe.repository.UserFavoriteRepository;
 import com.example.friendmatchbe.repository.UserRepository;
 import com.example.friendmatchbe.repository.UserUserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
-//import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import java.util.*;
@@ -23,8 +22,11 @@ public class UserService {
     @Autowired
     private AddFriendRequestRepository addFriendRequestRepository;
 
-    public User save(User user) {
-        return userRepository.save(user);
+    public User save(String userIp) {
+        User newUser = new User();
+        newUser.setName(userIp);
+        newUser.setUserIp(userIp);
+        return userRepository.save(newUser);
     }
 
     public Optional<User> findById(Long id) {
@@ -57,7 +59,7 @@ public class UserService {
                         RecommendResponse existingResponse = recommendResponseMap.get(friendOfFavorite.getId());
                         existingResponse.setScore(existingResponse.getScore() + 1);
                     } else {
-                        RecommendResponse newResponse = new RecommendResponse(friendOfFavorite.getId(), friendOfFavorite.getName(), friendOfFavorite.getAge(), friendOfFavorite.getUrl(), 1);
+                        RecommendResponse newResponse = new RecommendResponse(friendOfFavorite.getId(), friendOfFavorite.getName(),1);
                         recommendResponseMap.put(friendOfFavorite.getId(), newResponse);
                     }
                 }
@@ -67,7 +69,7 @@ public class UserService {
         recommendResponses.addAll(recommendResponseMap.values());
 
         for (RecommendResponse recommendResponse : recommendResponses) {
-            recommendResponse.setScore(100*recommendResponse.getScore() / countFavorite);
+            recommendResponse.setScore( (int) (100*recommendResponse.getScore() / countFavorite));
         }
         return recommendResponses;
     }
