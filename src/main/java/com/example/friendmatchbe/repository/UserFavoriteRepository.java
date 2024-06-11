@@ -2,6 +2,7 @@ package com.example.friendmatchbe.repository;
 
 import com.example.friendmatchbe.entity.Favorite;
 import com.example.friendmatchbe.entity.UserFavorite;
+import jakarta.transaction.Transactional;
 import org.springframework.data.jpa.repository.JpaRepository;
 
 import java.util.List;
@@ -11,4 +12,6 @@ public interface UserFavoriteRepository extends JpaRepository<UserFavorite, Long
     List<UserFavorite> findAllByUserId(Long userId);
     List<UserFavorite> findAllByFavoriteId(Long userId);
     Optional<UserFavorite> findAllByUserIdAndFavoriteId(Long userId, Long favoriteId);
+    @Transactional
+    void deleteAllByUserId(Long userId);
 }

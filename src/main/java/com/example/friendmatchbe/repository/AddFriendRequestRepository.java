@@ -8,4 +8,5 @@ import java.util.List;
 public interface AddFriendRequestRepository extends JpaRepository<AddFriendRequest, Long> {
     List<AddFriendRequest> findByFirstUserId(Long firstUserId);
     List<AddFriendRequest> findBySecondUserId(Long secondUserId);
+    AddFriendRequest findByFirstUserIdAndSecondUserId(Long firstUserId, Long secondUserId);
 }

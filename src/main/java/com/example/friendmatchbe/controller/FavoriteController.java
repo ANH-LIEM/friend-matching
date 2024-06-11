@@ -3,6 +3,7 @@ package com.example.friendmatchbe.controller;
 import com.example.friendmatchbe.entity.AddMultiFavoriteDTO;
 import com.example.friendmatchbe.entity.Favorite;
 import com.example.friendmatchbe.entity.User;
+import com.example.friendmatchbe.repository.UserFavoriteRepository;
 import com.example.friendmatchbe.repository.UserRepository;
 import com.example.friendmatchbe.service.FavoriteService;
 import com.example.friendmatchbe.service.UserService;
@@ -23,6 +24,8 @@ public class FavoriteController {
     private UserService userService;
     @Autowired
     private UserRepository userRepository;
+    @Autowired
+    private UserFavoriteRepository userFavoriteRepository;
 
     @PostMapping
     public ResponseEntity<Favorite> createFavorite(@RequestBody Favorite favorite) {
@@ -35,6 +38,8 @@ public class FavoriteController {
         User user = userRepository.findByUserIp(userIp);
         if (user == null) {
             userService.save(userIp);
+        } else {
+            userFavoriteRepository.deleteAllByUserId(user.getId());
         }
         List<Long> favoriteIds = addMultiFavoriteDTO.getFavoriteIds();
         for (Long favoriteId : favoriteIds) {
