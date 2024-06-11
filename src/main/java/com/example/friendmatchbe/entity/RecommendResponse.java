@@ -3,6 +3,8 @@ package com.example.friendmatchbe.entity;
 import jakarta.persistence.*;
 import lombok.*;
 
+import java.util.List;
+
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
@@ -13,6 +15,8 @@ public class RecommendResponse {
     private Long id;
     private String name;
     private double score;
+    private List<Favorite> favoritesOverlap;
+    private List<Favorite> favoritesOther;
 
     public RecommendResponse(User friendOfFavorite) {
         this.id = friendOfFavorite.getId();
