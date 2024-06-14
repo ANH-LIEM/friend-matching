@@ -2,6 +2,7 @@ package com.example.friendmatchbe.controller;
 
 import com.example.friendmatchbe.entity.AddMultiFavoriteDTO;
 import com.example.friendmatchbe.entity.Favorite;
+import com.example.friendmatchbe.entity.RespEntity;
 import com.example.friendmatchbe.entity.User;
 import com.example.friendmatchbe.repository.UserFavoriteRepository;
 import com.example.friendmatchbe.repository.UserRepository;
@@ -33,7 +34,7 @@ public class FavoriteController {
     }
 
     @PostMapping("/add-multiple-favor")
-    public ResponseEntity<Map<String,Boolean>> addMultipleFavorite(@RequestBody AddMultiFavoriteDTO addMultiFavoriteDTO) {
+    public ResponseEntity<RespEntity> addMultipleFavorite(@RequestBody AddMultiFavoriteDTO addMultiFavoriteDTO) {
         String userIp = addMultiFavoriteDTO.getUserIp();
         User user = userRepository.findByUserIp(userIp);
         if (user == null) {
@@ -45,7 +46,11 @@ public class FavoriteController {
         for (Long favoriteId : favoriteIds) {
             favoriteService.addFavorite(userIp, favoriteId);
         }
-        return ResponseEntity.ok(Map.of("result", true));
+        RespEntity respEntity = new RespEntity();
+        respEntity.setResult(true);
+        assert user != null;
+        respEntity.setId(user.getId());
+        return ResponseEntity.ok(respEntity);
     }
 
     @GetMapping
