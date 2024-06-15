@@ -228,6 +228,7 @@ public class UserService {
         userUser.setFirstUserId(addFriendRequest.getSecondUserId());
         userUser.setSecondUserId(addFriendRequest.getFirstUserId());
         userUserRepository.save(userUser);
+        addFriendRequestRepository.delete(addFriendRequest);
         return userUserRepository.save(convertToUserUser(addFriendRequest));
     }
 
