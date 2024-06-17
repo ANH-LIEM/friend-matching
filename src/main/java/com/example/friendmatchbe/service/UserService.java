@@ -40,6 +40,62 @@ public class UserService {
         }
         return users;
     }
+//
+//    public List<RecommendResponse> recommendFriends(Long userId) {
+//        List<RecommendResponse> recommendResponses = new ArrayList<>();
+//        long countFavorite = userFavoriteRepository.findAllByUserId(userId).size();
+//        User user = userRepository.findById(userId).orElse(null);
+//        List<User> friends = findAllFriends(userId);
+//        List<UserFavorite> userFavorites = userFavoriteRepository.findAllByUserId(userId);
+//        Map<Long, RecommendResponse> recommendResponseMap = new HashMap<>();
+//
+//        for (UserFavorite userFavorite : userFavorites) {
+//            List<User> friendsOfFavorite = findAllByFavorite(userFavorite.getFavoriteId());
+//            for (User friendOfFavorite : friendsOfFavorite) {
+//                if (!friends.contains(friendOfFavorite) && !friendOfFavorite.equals(user)) {
+//                    if (recommendResponseMap.containsKey(friendOfFavorite.getId())) {
+//                        RecommendResponse existingResponse = recommendResponseMap.get(friendOfFavorite.getId());
+//                        existingResponse.setScore(existingResponse.getScore() + 1);
+//                    } else {
+//                        RecommendResponse newResponse = new RecommendResponse(friendOfFavorite);
+//                        recommendResponseMap.put(friendOfFavorite.getId(), newResponse);
+//                    }
+//                }
+//            }
+//        }
+//
+//        // Bổ sung thông tin về sở thích chung và sở thích khác cho mỗi RecommendResponse
+//        for (Map.Entry<Long, RecommendResponse> entry : recommendResponseMap.entrySet()) {
+//            RecommendResponse recommendResponse = entry.getValue();
+//            User friendOfFavorite = userRepository.findById(recommendResponse.getId()).orElse(null);
+//            if (friendOfFavorite != null) {
+//                List<UserFavorite> friendFavorites = userFavoriteRepository.findAllByUserId(friendOfFavorite.getId());
+//                List<Favorite> favoritesOverlap = new ArrayList<>();
+//                List<Favorite> favoritesOther = new ArrayList<>();
+//
+//                for (UserFavorite friendFavorite : friendFavorites) {
+//                    Favorite favorite = favoriteRepository.findById(friendFavorite.getFavoriteId()).orElse(null);
+//                    if (favorite != null) {
+//                        if (userFavorites.stream().anyMatch(uf -> uf.getFavoriteId().equals(friendFavorite.getFavoriteId()))) {
+//                            favoritesOverlap.add(favorite);
+//                        } else {
+//                            favoritesOther.add(favorite);
+//                        }
+//                    }
+//                }
+//
+//                recommendResponse.setFavoritesOverlap(favoritesOverlap);
+//                recommendResponse.setFavoritesOther(favoritesOther);
+//            }
+//        }
+//
+//        recommendResponses.addAll(recommendResponseMap.values());
+//
+//        for (RecommendResponse recommendResponse : recommendResponses) {
+//            recommendResponse.setScore((int) (100 * recommendResponse.getScore() / countFavorite));
+//        }
+//        return recommendResponses;
+//    }
 
     public List<RecommendResponse> recommendFriends(Long userId) {
         List<RecommendResponse> recommendResponses = new ArrayList<>();
@@ -49,10 +105,18 @@ public class UserService {
         List<UserFavorite> userFavorites = userFavoriteRepository.findAllByUserId(userId);
         Map<Long, RecommendResponse> recommendResponseMap = new HashMap<>();
 
+        // Lấy danh sách người đã gửi yêu cầu kết bạn
+        List<AddFriendRequest> addFriendRequests = addFriendRequestRepository.findByFirstUserId(userId);
+        List<Long> addFriendRequestIds = addFriendRequests.stream()
+                .map(AddFriendRequest::getSecondUserId)
+                .toList();
+
         for (UserFavorite userFavorite : userFavorites) {
             List<User> friendsOfFavorite = findAllByFavorite(userFavorite.getFavoriteId());
             for (User friendOfFavorite : friendsOfFavorite) {
-                if (!friends.contains(friendOfFavorite) && !friendOfFavorite.equals(user)) {
+                if (!friends.contains(friendOfFavorite) &&
+                        !friendOfFavorite.equals(user) &&
+                        !addFriendRequestIds.contains(friendOfFavorite.getId())) {
                     if (recommendResponseMap.containsKey(friendOfFavorite.getId())) {
                         RecommendResponse existingResponse = recommendResponseMap.get(friendOfFavorite.getId());
                         existingResponse.setScore(existingResponse.getScore() + 1);
